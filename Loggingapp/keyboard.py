@@ -1,6 +1,7 @@
 import pygame, time, struct, sys, copy
 from pygame.locals import *
-import random, Queue, threading
+from _collections import deque
+import random, Queue, threading, string
 
 KEY_HEIGHT = 43
 KEY_WIDTH = 73
@@ -103,9 +104,9 @@ class Task(object):
         
         random.shuffle(self.sentences)
         
-    def start(self):
-        self.upfile = open(USER_ID + "_up.txt", 'w')
-        self.downfile = open(USER_ID + "_down.txt", 'w')
+    def start(self, taskno):
+        self.upfile = open(USER_ID + "_" + str(taskno)+ "up.txt", 'w')
+        self.downfile = open(USER_ID +"_" + str(taskno)+ "down.txt", 'w')
         self.upfile.write(self.instruction + '\n')
         self.downfile.write(self.instruction + '\n')    
     
@@ -223,7 +224,9 @@ class TwoHandedInput(TextInput):
         super(TwoHandedInput, self).__init__(background, screen, text[0], x, y)
         
     def draw(self):
-        text = "type \"" + self.caption + "\" with "+ self.thumb + "thumb"        
+        text = "type \"" + self.caption + "\" with "+ self.thumb + "thumb" 
+        if self.thumb == "both":
+            text += "s"       
         super(TwoHandedInput, self).draw(text)                       
 
 class VirtualKey(object):
@@ -303,6 +306,9 @@ class VirtualKeyboard(object):
         self.addkeys()          
         self.paintkeys()        
         
+        time.sleep(2)
+        pygame.event.clear()
+        
         counter = 0
         instruction = True
         lasttouchdown = False
@@ -343,6 +349,7 @@ class VirtualKeyboard(object):
                 counter = 0             
     
     def clickatmouse(self):
+        #TODO: check if it works correctly
         ''' Check to see if the user is pressing down on a key and draw it selected '''
         data = self.collectdata()
         self.task.upfile.write(data)
@@ -434,22 +441,88 @@ mode = pygame.display.list_modes()[0]
 
 screen = pygame.display.set_mode(mode, pygame.FULLSCREEN)
 
-twothumb = [("hi", "left"), ("hello", "right")]
-sentences = ["hi", "hello how are you today hello hello hello"]
-
 looping = Looping()
 thread = threading.Thread(target=looping.collectacceldata)
 thread.daemon = True
 thread.start()
-
-task = Task(twothumb, "please type wiht and thumb", True)
-task.start()
 mvykeys = VirtualKeyboard()
-userinput = mvykeys.run(screen, task)
-task.close()        
+
+with open("dataset.txt") as f:
+    lines = f.read().splitlines()
+    sentences = deque(lines)
+
+letters = list(string.ascii_lowercase)
+letterstwice = letters+letters
+twothumbletters = map(lambda x: (x, "left"), letterstwice)+ map(lambda x: (x, "right"), letterstwice)
+twothumbsentences = [(sentences.pop(), "left") for x in range(2)]+[(sentences.pop(), "right") for x in range(2)]+[(sentences.pop(), "both") for x in range(4)]
+    
+set1 = []
+set2 = []
+set3 = []
+
+set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
+set1.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with your left index finger"))
+set1.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
+set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with your left index finger"))
+set1.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
+set1.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
+
+set2.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
+set2.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
+set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with your left index finger"))
+
+set2.append(Task([sentences.pop() for x in range(2)], "From now on you will be typing sentences rather than letters. Please hold the phone in your right hand and type with you right thumb"))
+set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
+set2.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
+
+set3.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
+set3.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
+set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
+
+breaktask = Task([], "You can now take a short break if you wish")
+
+taskno = 1
+for task in set1:
+    task.start(taskno)
+    mvykeys.run(screen, task)
+    task.close()
+    taskno += 1
+         
+mvykeys.run(screen, breaktask)
+
+for task in set2:
+    task.start(taskno)
+    mvykeys.run(screen, task)
+    task.close()
+    taskno += 1
+
+mvykeys.run(screen, breaktask)    
+    
+for task in set3:
+    task.start(taskno)
+    mvykeys.run(screen, task)
+    task.close()
+    taskno += 1
+    
+mvykeys.run(screen, Task([], "This is the end of the experiment. Please return the device to the experimenter"))        
         
 pygame.quit()
 looping.isRunning = False
+
+
+
+
+
+
 
 
 
