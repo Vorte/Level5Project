@@ -81,6 +81,7 @@ def render_textrect(rect, text, font, text_color, background_color, justificatio
 
     surface = pygame.Surface(rect.size)
     surface.fill(background_color)
+    gold_color = (255,215,0)
 
     accumulated_height = 0
     accum_width = 0
@@ -88,12 +89,29 @@ def render_textrect(rect, text, font, text_color, background_color, justificatio
         if accumulated_height + font.size(line)[1] >= rect.height:
             raise TextRectException, "Once word-wrapped, the text string was too tall to fit in the rect."
         if line != "":
-            #TODO: colours
-            tempsurface = font.render(line, 1, text_color)
-            surface.blit(tempsurface, (10, accumulated_height))
+            if '\"' in line:
+                words = line.strip().split('\"')
+                firstsurface = font.render(words[0], 1, text_color)
+                surface.blit(firstsurface, (10, accumulated_height))
+                temp = text_color
+                text_color= gold_color
+                gold_color=temp
+                secondsurface = font.render(words[1], 1, text_color)
+                surface.blit(secondsurface, (10+firstsurface.get_width(), accumulated_height))
+                accum_width = secondsurface.get_width()
+                if len(words) == 3:
+                    temp = text_color
+                    text_color = gold_color
+                    gold_color=temp
+                    thirdsurface = font.render(words[2], 1, text_color)
+                    surface.blit(thirdsurface, (10+firstsurface.get_width()+secondsurface.get_width(), accumulated_height))
+                    accum_width = thirdsurface.get_width()
+            else:    
+                tempsurface = font.render(line, 1, text_color)
+                surface.blit(tempsurface, (10, accumulated_height))
+                accum_width = tempsurface.get_width()
         accumulated_height += font.size(line)[1]
-        accum_width = tempsurface.get_width()
-
+        
     return surface, accumulated_height, accum_width
 
 class Task(object):
@@ -132,7 +150,13 @@ class Instruction(object):
         if rendered_text:
             self.layer.blit(pygame.transform.rotate(rendered_text,90), my_rect.topleft)            
          
-        #TODO: add second rect to say touscreen to continue 
+        my_rect = pygame.Rect((480, 70, 350, 40))
+         
+        rendered_text = render_textrect(my_rect, "touch screen to continue", 
+                                        pygame.font.SysFont("Arial", 30), (216, 216, 216), (48, 48, 48), 0)[0]
+        if rendered_text:
+            self.layer.blit(pygame.transform.rotate(rendered_text,90), my_rect.topleft)  
+            
         self.screen.blit(self.background,(x, y))
         self.screen.blit(self.layer,(x,y))
         pygame.display.flip()     
@@ -224,7 +248,7 @@ class TwoHandedInput(TextInput):
         super(TwoHandedInput, self).__init__(background, screen, text[0], x, y)
         
     def draw(self):
-        text = "type \"" + self.caption + "\" with "+ self.thumb + "thumb" 
+        text = "type \"" + self.caption + "\" with "+ self.thumb + " thumb" 
         if self.thumb == "both":
             text += "s"       
         super(TwoHandedInput, self).draw(text)                       
@@ -320,11 +344,6 @@ class VirtualKeyboard(object):
             events = pygame.event.get()
             if events <> None:
                 for e in events: 
-                    if (e.type == KEYDOWN):
-                        if e.key == K_ESCAPE:
-                            return self.text # Return what we started with
-                        if e.key == K_RETURN:
-                            return self.input.text # Return what the user entered
                     if e.type == MOUSEBUTTONDOWN and not lasttouchdown:
                         clicksound.play()
                         if not instruction:
@@ -349,7 +368,6 @@ class VirtualKeyboard(object):
                 counter = 0             
     
     def clickatmouse(self):
-        #TODO: check if it works correctly
         ''' Check to see if the user is pressing down on a key and draw it selected '''
         data = self.collectdata()
         self.task.upfile.write(data)
@@ -408,7 +426,7 @@ class VirtualKeyboard(object):
             self.keys.append(onekey)
             x += KEY_HEIGHT+4
         
-        x = 83
+        x = 85
         y += KEY_WIDTH+6   
                 
         row = ['z','x','c','v','b','n','m']
@@ -451,6 +469,7 @@ with open("dataset.txt") as f:
     lines = f.read().splitlines()
     sentences = deque(lines)
 
+random.shuffle(sentences)
 letters = list(string.ascii_lowercase)
 letterstwice = letters+letters
 twothumbletters = map(lambda x: (x, "left"), letterstwice)+ map(lambda x: (x, "right"), letterstwice)
@@ -468,12 +487,12 @@ set1.append(Task(letterstwice, "Please hold the phone in your right hand and typ
 set1.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
 set1.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
-
+ 
 set2.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
 set2.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
 set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with your left index finger"))
-
+ 
 set2.append(Task([sentences.pop() for x in range(2)], "From now on you will be typing sentences rather than letters. Please hold the phone in your right hand and type with you right thumb"))
 set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
 set2.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
