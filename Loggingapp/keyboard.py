@@ -31,11 +31,11 @@ class Looping(object):
                 xyz_data = xyz[0], xyz[1], xyz[2]
                 
                 if QUEUE.full():
-                    QUEUE.get_nowait()
+                    QUEUE.get()
                 
                 elapsedtime = str(int((time.time() - START_TIME)*1000))
                 writefile.write(elapsedtime + " "+ str(xyz_data)+'\n')
-                QUEUE.put_nowait(xyz_data)
+                QUEUE.put(xyz_data)
                 time.sleep(0.02)
         
         writefile.close()
