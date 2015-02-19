@@ -473,7 +473,7 @@ random.shuffle(sentences)
 letters = list(string.ascii_lowercase)
 letterstwice = letters+letters
 twothumbletters = map(lambda x: (x, "left"), letterstwice)+ map(lambda x: (x, "right"), letterstwice)
-twothumbsentences = [(sentences.pop(), "left") for x in range(2)]+[(sentences.pop(), "right") for x in range(2)]+[(sentences.pop(), "both") for x in range(4)]
+twothumbsentences = lambda : [(sentences.pop(), "left") for x in range(2)]+[(sentences.pop(), "right") for x in range(2)]+[(sentences.pop(), "both") for x in range(4)]
     
 set1 = []
 set2 = []
@@ -487,22 +487,22 @@ set1.append(Task(letterstwice, "Please hold the phone in your right hand and typ
 set1.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set1.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
 set1.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
- 
+  
 set2.append(Task(twothumbletters, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with you right thumb"))
 set2.append(Task(letterstwice, "Please hold the phone in your left hand and type with your left thumb"))
 set2.append(Task(letterstwice, "Please hold the phone in your right hand and type with your left index finger"))
- 
+  
 set2.append(Task([sentences.pop() for x in range(2)], "From now on you will be typing sentences rather than letters. Please hold the phone in your right hand and type with you right thumb"))
 set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
-set2.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set2.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
 
-set3.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
-set3.append(Task(twothumbsentences, "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
