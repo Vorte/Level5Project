@@ -6,7 +6,7 @@ postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"],
 def read_twothumb(userid):
     left = []
     right = []
-    filenos = postures[twohand]
+    filenos = postures["two_hand"]
     createlist = lambda x: map(float, x.replace('(', '').replace(')', '').split(','))
     
     for fileno in filenos:
