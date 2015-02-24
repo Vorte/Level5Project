@@ -14,7 +14,8 @@ def read_twothumb_se(userid):
     random.shuffle(filenos)
     
     test_file = filenos.pop()
-    #print test_file, filenos
+    print "Session used for testing: "+test_file
+    print
     createlist = lambda x: map(float, x.replace('(', '').replace(')', '').split(','))
     
     for fileno in filenos:

@@ -495,14 +495,14 @@ set2.append(Task(letterstwice, "Please hold the phone in your right hand and typ
   
 set2.append(Task([sentences.pop() for x in range(2)], "From now on you will be typing sentences rather than letters. Please hold the phone in your right hand and type with you right thumb"))
 set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
-set2.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set2.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each sentence you will be instructed which thumb to use", True))
 set2.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
 
-set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each sentence you will be instructed which thumb to use", True))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
-set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each letter you will be instructed which thumb to use", True))
+set3.append(Task(twothumbsentences(), "Please hold the phone in both hands. At each sentence you will be instructed which thumb to use", True))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your left hand and type with your left thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with you right thumb"))
 set3.append(Task([sentences.pop() for x in range(2)], "Please hold the phone in your right hand and type with your left index finger"))
@@ -531,11 +531,12 @@ for task in set3:
     mvykeys.run(screen, task)
     task.close()
     taskno += 1
-    
+
+looping.isRunning = False    
 mvykeys.run(screen, Task([], "This is the end of the experiment. Please return the device to the experimenter"))        
         
 pygame.quit()
-looping.isRunning = False
+
 
 
 
