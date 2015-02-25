@@ -4,7 +4,7 @@ import random, copy
 postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
             "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
             
-def read_twothumb_se(userid):
+def read_twothumb_se(userid): #BOD
     left = []
     right = []
     left_test = []
@@ -36,7 +36,7 @@ def read_twothumb_se(userid):
     return np.array(left), np.array(right), np.array(left_test), np.array(right_test)
                   
 
-def read_twothumb(userid):
+def read_twothumb(userid): #BOD
     left = []
     right = []
     filenos = postures["two_hand"]
@@ -53,7 +53,7 @@ def read_twothumb(userid):
     return np.array(left), np.array(right)
     
 
-def read_file(userid, posture):
+def read_file(userid, posture): #BOD
     # TODO: up/down switching
     data = []
     filenos = postures[posture]
@@ -66,5 +66,34 @@ def read_file(userid, posture):
             map(lambda x: data.append(map(float,x.split(', '))), lines)
         
     return np.array(data)
+    
+    
+
+def get_touch_locations(userid, posture):
+    data = {}
+    filenos = postures[posture]
+    
+    for fileno in filenos:
+        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        with open(filename, "r") as f:
+            lines = f.read().splitlines()
+            map(lambda x: x.split('\t'), lines)
+            print lines
+        
+    return np.array(data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     
     
