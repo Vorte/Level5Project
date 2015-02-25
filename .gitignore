@@ -1,0 +1,6 @@
+*.metadata
+*.py~
+*.project
+*.pydevproject
+*.pyc
+*.ipynb_checkpoints
