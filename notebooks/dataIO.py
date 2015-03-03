@@ -1,5 +1,5 @@
 import numpy as np
-import random, copy
+import random, copy, math
 
 postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
             "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
@@ -83,8 +83,32 @@ def get_touch_locations(userid, posture):
     return np.array(data)
 
 
+def filter_touches(touches, centers):
+    keys = touches.keys()
+    filtered = {}
+    
+    count = 0
+    for key in keys:
+        touch_coords = touches[key]
+        center = centers[key]        
+        for coord in touch_coords:
+            if iscorrect(coord, center):
+                filtered.setdefault(key,[]).append(coord)
+            else:
+                count += 1
+                    
+    print ("Filtered %d points." %count)
+    print
+                
+    return filtered
 
-
+def iscorrect(a, b):
+    key_width = 43
+    dist = math.sqrt( (a[0] - b[0])**2 + (a[1] - b[1])**2 )
+    
+    if dist > 2*key_width:
+        return False
+    return True
 
 
 
