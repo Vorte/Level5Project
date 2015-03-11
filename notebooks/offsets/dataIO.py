@@ -143,6 +143,9 @@ def filter_touches(touches):
 
 def iscorrect(a, b):
     key_width = 43
+#    if abs(a[0]-b[0])>43 or abs(a[0]-b[0])>73:
+#        return False
+    
     dist = math.sqrt( (a[0] - b[0])**2 + (a[1] - b[1])**2 )
     
     if dist > 2*key_width:
