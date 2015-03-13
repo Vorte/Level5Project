@@ -92,16 +92,6 @@ def get_touch_locations(userid, posture):
             print lines
         
     return np.array(data)
-
-def find_touches(touches, letter):
-    #print "find_touches is deprecated" #############
-
-    found = []
-    for touch in touches:
-        if touch.letter == letter:
-            found.append(touch)
-            
-    return found
     
 
 def filter_new(touches):
