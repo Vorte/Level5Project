@@ -2,13 +2,14 @@ import numpy as np
 import random, copy, math
 
 class Touch(object):
-    def __init__(self, x, y, bod, letter, time, left = True):
+    def __init__(self, x, y, bod, letter, time, left = True, posture="two_hand"):
         self.x = x
         self.y = y
         self.bod = bod
         self.time = time
         self.letter = letter
         self.left = left # False = right
+        self.posture = posture
 
 postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
             "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
