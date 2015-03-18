@@ -57,16 +57,23 @@ def perform_CV(points, targets_x, targets_y, point_centers, n_folds=10):
     return np.array(mse_x), np.array(mse_y), within_before, within_after
 
 
-def within_distance(point1, point2, dist):
+def within_distance(point1, point2, distance):
     dot_pitch = 0.101195219 # 0.1011
-    dist_px = int(dist/dot_pitch)
+    dist_px = int(distance/dot_pitch)
     
     dist = math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
     
-    if dist < dist_px:
+    if dist <= dist_px:
         return True
     return False
-    
+
+
+def within_actual_button(point, center):
+    width = 43
+    height = 73
+    if abs(point[0]-center[0])> height/2 or abs(point[1]-center[1])>width/2:
+        return False
+    return True
   
 def circle_button_error(points, centers):
     no_points = []
@@ -79,6 +86,8 @@ def circle_button_error(points, centers):
             center = centers[i]
             if within_distance(point, center, dist):
                 count += 1
+#            if within_actual_button(point, center):
+#                count += 1
                 
         no_points.append(count/len(points))
         
