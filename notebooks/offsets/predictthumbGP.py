@@ -1,20 +1,17 @@
 import numpy as np
-import dataIO, common_functions
-from sklearn import cross_validation, linear_model, preprocessing, svm
-from sklearn.grid_search import GridSearchCV
+import ast, dataIO, common_functions
+from sklearn import cross_validation, linear_model, preprocessing
+import GPy
 reload(dataIO)
 reload(common_functions)
-
-postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
-            "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
 
 def learn_offset(points, targets):
     regr = linear_model.LinearRegression()
     regr.fit(points, targets)
     
     return regr
-
-def run(userId):
+    
+def run(userId):                
     locations, bod, targets_x, targets_y, y, touch_centers = dataIO.process_twohand(userId)
 
     locations = np.array(locations)
@@ -42,15 +39,25 @@ def run(userId):
         centers_train, centers_test = touch_centers[train_index], touch_centers[test_index]
         
         scaler = preprocessing.StandardScaler().fit(bod_train)  
-        bod_scaled = scaler.transform(bod_train)
+        bod_scaled = scaler.transform(bod_train)    
+        y_train = y_train.reshape(y_train.size, 1)
         
-        tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1, 0.1 ,1e-2, 1e-3, 1e-4],
-                             'C': [0.001, 0.01, 0.1 ,1, 10, 100, 1000]},
-                            {'kernel': ['linear'], 'C': [0.001, 0.01, 0.1 ,1, 10, 100, 1000]}]
+        l = np.sqrt(1/(2*0.1))
+        kernel= GPy.kern.RBF(24, variance=1., lengthscale=l)  
+        m = GPy.models.GPClassification(X = bod_scaled, Y = y_train, kernel=kernel)
         
-        #clf = GridSearchCV(svm.SVC(C=1, cache_size=500), tuned_parameters, scoring='roc_auc')
-        clf = svm.SVC(C=10, kernel='rbf', gamma=0.1, cache_size=500)
-        clf.fit(bod_scaled, y_train)
+#        m = GPy.models.GPClassification(X = bod_scaled, Y = y_train)
+        
+#        l1 = m.rbf.lengthscale.values[0]
+#        v1 = m.rbf.variance.values[0]
+#        l2 = float("inf")
+#        v2 = float("inf")
+#        while abs(l1-l2)>0.01 or abs(v1-v2)>0.01:
+#            m.optimize('bfgs', max_iters=100)
+#            l1 = l2
+#            v1 = v2
+#            l2 = m.rbf.lengthscale.values[0]
+#            v2 = m.rbf.variance.values[0]
         
         regr_x = []
         regr_y = []
@@ -65,8 +72,13 @@ def run(userId):
             
             point = points_test[i]
             bod_data = scaler.transform(bod_test[i])
-            pred = clf.predict(bod_data)
-            
+            bod_data = bod_data.reshape(1, 24)
+
+            if m.predict(bod_data)[0][0][0]>0.5:
+                pred = 1
+            else:
+                pred = 0
+                
             pred_x = regr_x[pred].predict(point)
             pred_y = regr_y[pred].predict(point)
             
@@ -78,24 +90,12 @@ def run(userId):
         
         se_x.append((new_points[0]-centers_test[0])**2)
         se_y.append((new_points[1]-centers_test[1])**2)
-        
         foldno +=1    
 
     se_x = np.array([item for sublist in se_x for item in sublist])
     se_y = np.array([item for sublist in se_y for item in sublist])
-     
+       
     within_after = np.mean(np.array(within_after), 0)
     
     return np.array(within_before), np.array(within_after)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
