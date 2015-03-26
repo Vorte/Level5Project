@@ -77,7 +77,7 @@ def within_actual_button(point, center):
   
 def circle_button_error(points, centers):
     no_points = []
-    distances = range(1,11)
+    distances = range(1,8)
 
     for dist in distances:
         count = 0.0
