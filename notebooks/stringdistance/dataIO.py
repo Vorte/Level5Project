@@ -9,7 +9,8 @@ def within_button(touch, center):
     if abs(touch[0]-center[0])>73/2.0 or abs(touch[1]-center[1])>43/2.0:
         return False
     return True
-    
+
+'''
 def typed_string(touches):
     centers = get_key_centers()
     keys = centers.keys()
@@ -17,8 +18,8 @@ def typed_string(touches):
     
     for touch in touches:
         for key in keys:
-            #if within_button(touch, centers[key]):
-            if within_distance(touch, centers[key], 3):
+            if within_button(touch, centers[key]):
+            #if within_distance(touch, centers[key], 3):
                 if key == 'SPACE':
                     typed_string.append(' ')
                 else:
@@ -26,6 +27,27 @@ def typed_string(touches):
                 break
         
     return ''.join(typed_string)
+'''
+
+def typed_string(touches):
+    centers = get_key_centers()
+    keys = centers.keys()
+    typed_strings = [[],[],[],[],[],[],[]]
+    
+    for touch in touches:
+        for key in keys:
+            for i in range(1, 8):
+                if within_distance(touch, centers[key], i):
+                    if key == 'SPACE':
+                        typed_strings[i-1].append(' ')
+                    else:
+                        typed_strings[i-1].append(key)
+                    #continue
+    
+    for i in range(len(typed_strings)):
+        typed_strings[i] = ''.join(typed_strings[i])
+                    
+    return typed_strings
 
 
 def get_key_centers():
