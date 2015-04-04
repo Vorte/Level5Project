@@ -1,4 +1,4 @@
-import ast
+import ast, math
 
 def within_button(touch, center):
     if center == (810.5, 245): # SPACE key
@@ -17,7 +17,8 @@ def typed_string(touches):
     
     for touch in touches:
         for key in keys:
-            if within_button(touch, centers[key]):
+            #if within_button(touch, centers[key]):
+            if within_distance(touch, centers[key], 3):
                 if key == 'SPACE':
                     typed_string.append(' ')
                 else:
@@ -69,7 +70,7 @@ def circle_button_error(points, centers):
 def createlist(string):
     return map(float, string.replace('(', '').replace(')', '').split(','))
 
-def process_twohand(userid):
+def process_twohand(userid, posture = 0):
     locations = []
     bod = []
     targets_x = []
@@ -94,15 +95,48 @@ def process_twohand(userid):
 #                    continue
                 
                 if line[0] == "left":
-                    y.append(0)
+                    y.append(0+posture)
                 else:
-                    y.append(1)
+                    y.append(1+posture)
                 
                 touch_centers.append(center)
                 targets_x.append(center[0]-location[0])
                 targets_y.append(center[1]-location[1])            
                 locations.append(location)
                 bod.append(createlist(line[-1]))
+                
+    return locations, bod, targets_x, targets_y, y, touch_centers
+
+
+def process_posture(userid, filenos, posture): 
+    
+    locations = []
+    bod = []
+    targets_x = []
+    targets_y = []
+    y = []
+    touch_centers = [] 
+    centers = get_key_centers()
+    
+    for fileno in filenos:
+        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        with open(filename, "r") as f:
+            lines = f.read().splitlines()
+            lines = map(lambda x: x.split('\t'), lines[1:])
+            for line in lines:
+                letter = line[0]
+                location = list(ast.literal_eval(line[2]))
+                center = centers[letter]
+                
+#                if not iscorrect(location, center):
+#                    continue
+                
+                targets_x.append(center[0]-location[0])
+                targets_y.append(center[1]-location[1])                
+                touch_centers.append(center)
+                locations.append(location)
+                bod.append(createlist(line[-1]))
+                y.append(posture)
                 
     return locations, bod, targets_x, targets_y, y, touch_centers
     
