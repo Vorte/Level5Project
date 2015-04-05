@@ -1,7 +1,8 @@
 import ast, math
 
 def within_button(touch, center):
-    if center == (810.5, 245): # SPACE key
+    if center == (810.5, 245.0): # SPACE key
+        print "hi"
         if abs(touch[0]-center[0])>73/2.0 or abs(touch[1]-center[1])>250/2.0:
             return False
         return True
@@ -30,25 +31,42 @@ def typed_string(touches):
 '''
 
 def typed_string(touches):
-    centers = get_key_centers()
-    keys = centers.keys()
+    #centers = get_key_centers()
+    #keys = centers.keys()
     typed_strings = [[],[],[],[],[],[],[]]
     
     for touch in touches:
-        for key in keys:
-            for i in range(1, 8):
-                if within_distance(touch, centers[key], i):
-                    if key == 'SPACE':
-                        typed_strings[i-1].append(' ')
-                    else:
-                        typed_strings[i-1].append(key)
-                    #continue
-    
+        #for key in keys:
+        for i in range(1, 8):
+            key, loc = closest_key(touch)
+            if within_distance(touch, loc, i):
+                if key == 'SPACE':
+                    typed_strings[i-1].append(' ')
+                else:
+                    typed_strings[i-1].append(key)
+                #continue
+     
     for i in range(len(typed_strings)):
         typed_strings[i] = ''.join(typed_strings[i])
-                    
+                      
     return typed_strings
 
+def closest_key(touch):
+    centers = get_key_centers()
+    #center_locations = centers.values()
+    keys = centers.keys()
+    
+    distances = {}
+    for key in keys:
+        loc = centers[key]
+        dist = math.sqrt((touch[0] - loc[0])**2 + (touch[1] - loc[1])**2)
+        distances[key]=dist
+    
+    key = min(distances, key=distances.get)
+    return key, centers[key]
+        
+    #key_index = distances.index(min(distances))
+    #return center_locations[key_index]
 
 def get_key_centers():
     data = {}
