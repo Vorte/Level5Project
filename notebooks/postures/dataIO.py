@@ -1,3 +1,8 @@
+
+postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
+            "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
+
+
 def read_twothumb_se(userid): #BOD
     left = []
     right = []
@@ -29,12 +34,16 @@ def read_twothumb_se(userid): #BOD
             
     return np.array(left), np.array(right), np.array(left_test), np.array(right_test)
                   
-
-def read_twothumb(userid): #BOD
+def createlist(x):
+    return map(float, x.replace('(', '').replace(')', '').split(','))
+    
+def read_twothumb(userid, session = -1):
     left = []
     right = []
     filenos = postures["two_hand"]
-    createlist = lambda x: map(float, x.replace('(', '').replace(')', '').split(','))
+    
+    if session>=0:
+        filenos = filenos[session]
     
     for fileno in filenos:
         filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"down.txt"
@@ -44,11 +53,10 @@ def read_twothumb(userid): #BOD
             map(lambda x: left.append(createlist(x[-1])) 
                 if x[0]=="left" else right.append(createlist(x[-1])), lines)
         
-    return np.array(left), np.array(right)
+    return left, right
     
 
-def read_file(userid, posture): #BOD
-    # TODO: up/down switching
+def read_file(userid, posture):
     data = []
     filenos = postures[posture]
     
@@ -59,5 +67,5 @@ def read_file(userid, posture): #BOD
             lines = map(lambda x: (x.split('\t')[-1]).replace('(', '').replace(')', ''), lines[1:])
             map(lambda x: data.append(map(float,x.split(', '))), lines)
         
-    return np.array(data) 
+    return data
     
