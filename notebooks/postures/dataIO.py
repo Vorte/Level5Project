@@ -46,7 +46,7 @@ def read_twothumb(userid, session = -1):
         filenos = filenos[session]
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"down.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"down.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
@@ -61,7 +61,7 @@ def read_file(userid, posture):
     filenos = postures[posture]
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"down.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"down.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: (x.split('\t')[-1]).replace('(', '').replace(')', ''), lines[1:])

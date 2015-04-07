@@ -102,7 +102,7 @@ def iscorrect(a, b):
 def get_key_centers():
     data = {}
     
-    filename = "/home/dimitar/Desktop/Python/Level5Project/Loggingapp/keylocations.txt"
+    filename = "../../Loggingapp/keylocations.txt"
     with open(filename, "r") as f:
         lines = f.read().splitlines()
         lines = map(lambda x: x.split(' '), lines)
@@ -123,7 +123,7 @@ def process_twohand(userid, posture = 0):
     filenos = ["2", "6", "9"]
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"up.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
@@ -160,7 +160,7 @@ def process_posture(userid, filenos, posture):
     centers = get_key_centers()
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"up.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
