@@ -1,23 +1,5 @@
 import numpy as np
 import random, copy, math, ast
-
-'''
-class Touch(object):
-    def __init__(self, x, y, bod, letter, time, left = True, posture="two_hand"):
-        self.x = x
-        self.y = y
-        self.bod = bod
-        self.time = time
-        self.letter = letter
-        self.left = left # False = right
-        self.posture = posture
-'''
-
-postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
-            "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
-            
-def createlist(string):
-    return map(float, string.replace('(', '').replace(')', '').split(','))
             
 '''
 def get_touch_locations(userid, posture):
@@ -70,25 +52,29 @@ def filter_touches(touches):
     print
                 
     return filtered
-'''
 
 def within_button(touch, center):
     if abs(a[0]-b[0])>43 or abs(a[0]-b[0])>73:
         return False
     return True
+'''
+
+postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
+            "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
+            
+def createlist(string):
+    return map(float, string.replace('(', '').replace(')', '').split(','))
+
+def within_distance(point1, point2, distance):
+    dot_pitch = 0.101195219 # 0.1011
+    dist_px = int(distance/dot_pitch)
     
-def typed_string(touches):
-    centers = get_key_centers()
-    keys = centers.keys()
-    typed_string = []
+    dist = math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
     
-    for touch in touches:
-        for key in keys:
-            if within_button(touch, centers[key]):
-                typed_string.append(key)
-                break
-        
-    return ''.join(typed_string)
+    if dist <= dist_px:
+        return True
+    return False
+
 
 def iscorrect(a, b):
     key_width = 43    
@@ -97,6 +83,23 @@ def iscorrect(a, b):
     if dist > 2*key_width:
         return False
     return True
+
+
+def circle_button_error(points, centers):
+    no_points = []
+    distances = range(1,8)
+
+    for dist in distances:
+        count = 0.0
+        for i in range(len(points)):
+            point = points[i]
+            center = centers[i]
+            if within_distance(point, center, dist):
+                count += 1
+                
+        no_points.append(count/len(points))
+        
+    return no_points    
 
 
 def get_key_centers():
