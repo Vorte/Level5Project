@@ -10,9 +10,6 @@ with open("mobile_nvp.txt") as f:
     lines = f.read().splitlines()
     lines = map(lambda x: x.strip().split('\t')[1], lines)
     lines = filter(meetscond, lines)
-
-print len(lines)    
-# TODO: check char counts
    
 with open("dataset.txt", "w") as f:
     for line in lines:
