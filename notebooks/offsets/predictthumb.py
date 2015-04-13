@@ -42,8 +42,8 @@ def run(userId):
 		                     'C': [0.001, 0.01, 0.1 ,1, 10, 100, 1000]},
 		                    {'kernel': ['linear'], 'C': [0.001, 0.01, 0.1 ,1, 10, 100, 1000]}]
 		
-		#clf = GridSearchCV(svm.SVC(C=1, cache_size=500), tuned_parameters)
-		clf = svm.SVC(C=1, kernel='rbf', cache_size=500, gamma=0.1)
+		clf = GridSearchCV(svm.SVC(C=1, cache_size=500), tuned_parameters)
+		#clf = svm.SVC(C=1, kernel='rbf', cache_size=500, gamma=0.1)
 		clf.fit(bod_scaled, y_train)
 		
 		regr_x = []
