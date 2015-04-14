@@ -138,41 +138,4 @@ class VBGP:
         return P_test
         
 
-# X 2d, t 1d
-# theta.size == X.shape[1]
-# X_test.shape[1]==X.shape[1]
-# scaling data
-# X, t = generate(500)
-# X_t, t_t = generate(5000)
-# theta = np.array([1.1348e+01, 8.8135e+00, 1.7372e-03, 2.2966e-03, 1.7476e-03, 
-#                    1.6263e-03, 1.8975e-03, 1.2296e-03,  2.4512e-03, 1.6161e-03])
-# 
-# theta1 = np.array([0.01 for x in range(10)])
-# thetas = np.array([theta1, theta])
-# theta = np.array([0.1 for x in range(10)])
-# #prob = VarMultProbRegGP(X, t, theta=theta, nos_its=50, thresh = 0.1, X_test=X_t)    
-# vbgp = VBGP()
-# vbgp.fit(X, t, theta, nos_its = 50, thresh=0.1)
-# prob = vbgp.predict(X_t)
-# 
-# pred = np.argmax(prob, axis=1)
-# pred = pred.reshape(pred.shape[0])
-# t_t = t_t.reshape(t_t.shape[0])
-# 
-# error = pred - t_t
-# print t_t.shape
-# print np.nonzero(error)[0].shape
-# 
-# print vbgp.optimize(thetas, cv =3)
-# prob = vbgp.predict(X_t)
-# print prob
-# 
-# pred = np.argmax(prob, axis=1)
-# pred = pred.reshape(pred.shape[0])
-# t_t = t_t.reshape(t_t.shape[0])
-# 
-# error = pred - t_t
-# print t_t.shape
-# print np.nonzero(error)[0].shape
-
 
