@@ -7,9 +7,8 @@ def learn_offset(points, targets):
     regr.fit(points, targets)
     
     return regr
-
-def run(userId):
                 
+def run(userId):    
     locations, bod, targets_x, targets_y, y, touch_centers = dataIO.process_twohand(userId)
 
     locations = np.array(locations)
@@ -19,9 +18,13 @@ def run(userId):
     y = np.array(y)
     touch_centers = np.array(touch_centers)
 
-    within_before = dataIO.circle_button_error(locations, touch_centers)
+    mse_x_b = np.mean(targets_x ** 2)
+    mse_y_b = np.mean(targets_y ** 2)
+    within_before = np.array(dataIO.circle_button_error(locations, touch_centers))
     locations = np.concatenate((locations, locations**2),1)
 
+    se_x = []
+    se_y = []
     within_after = []
     kf = cross_validation.KFold(len(y), n_folds=10, shuffle=True)
 
@@ -71,10 +74,18 @@ def run(userId):
         within_after.append(dataIO.circle_button_error(new_points, centers_test))
         new_points = np.array(new_points).T
         centers_test = centers_test.T
-   
-    within_after = np.mean(np.array(within_after), 0)
+
+        se_x.append((new_points[0]-centers_test[0])**2)
+        se_y.append((new_points[1]-centers_test[1])**2)
+
+    se_x = np.array([item for sublist in se_x for item in sublist])
+    se_y = np.array([item for sublist in se_y for item in sublist])
+
+    mse_x_a = np.mean(se_x)
+    mse_y_a = np.mean(se_y)     
+    within_after = np.mean(np.array(within_after), 0)            
     
-    return np.array(within_before), np.array(within_after)
+    return within_before, within_after, mse_x_b, mse_y_b, mse_x_a, mse_y_a
     
     
     
