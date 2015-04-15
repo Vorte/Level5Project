@@ -3,7 +3,7 @@ postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"],
             "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
 
 
-def read_twothumb_se(userid): #BOD
+def read_twothumb_se(userid):
     left = []
     right = []
     left_test = []
@@ -15,7 +15,6 @@ def read_twothumb_se(userid): #BOD
     test_file = filenos.pop()
     print "Session used for testing: "+test_file
     print
-    #createlist = lambda x: map(float, x.replace('(', '').replace(')', '').split(','))
     
     for fileno in filenos:
         filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"down.txt"
@@ -36,6 +35,13 @@ def read_twothumb_se(userid): #BOD
                   
 def createlist(x):
     return map(float, x.replace('(', '').replace(')', '').split(','))
+
+def contains_spikes(values):
+    for value in values:
+        if value>40000:
+            return True
+    
+    return False
     
 def read_twothumb(userid, session = -1):
     left = []
@@ -50,8 +56,15 @@ def read_twothumb(userid, session = -1):
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
-            map(lambda x: left.append(createlist(x[-1])) 
-                if x[0]=="left" else right.append(createlist(x[-1])), lines)
+            for line in lines:
+                bod = createlist(line[-1])
+                if contains_spikes(bod):
+                    continue
+                
+                if line[0] == "left":
+                    left.append(bod)
+                else:
+                    right.append(bod)
         
     return left, right
     
@@ -64,8 +77,24 @@ def read_file(userid, posture):
         filename = "../../data/"+str(userid)+"_"+fileno+"down.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
-            lines = map(lambda x: (x.split('\t')[-1]).replace('(', '').replace(')', ''), lines[1:])
-            map(lambda x: data.append(map(float,x.split(', '))), lines)
+            lines = map(lambda x: x.split('\t'), lines[1:])
+            for line in lines:
+                bod = createlist(line[-1])
+                if contains_spikes(bod):
+                    continue
+                
+                data.append(bod)            
         
     return data
+
+
+
+
+
+
+
+
+
+
+
     

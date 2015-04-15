@@ -1,66 +1,42 @@
 import numpy as np
-import random, copy, math, ast
-            
-'''
-def get_touch_locations(userid, posture):
-    data = {}
-    filenos = postures[posture]
-    
-    for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
-        with open(filename, "r") as f:
-            lines = f.read().splitlines()
-            map(lambda x: x.split('\t'), lines)
-            print lines
-        
-    return np.array(data)
-    
+import math, ast, GPy
+from sklearn import metrics, cross_validation
 
-def filter_new(touches):
-    centers = get_key_centers()
-    filtered = []
-    
-    count = 0
-    for touch in touches:
-        coord = (touch.x, touch.y)
-        center = centers[touch.letter]        
-        if iscorrect(coord, center):
-            filtered.append(touch)
-        else:
-            count += 1
-                    
-    print ("Filtered %d points." %count)
-                
-    return filtered
-
-def filter_touches(touches):
-    centers = get_key_centers()
-    keys = touches.keys()
-    filtered = {}
-    
-    count = 0
-    for key in keys:
-        touch_coords = touches[key]
-        center = centers[key]        
-        for coord in touch_coords:
-            if iscorrect(coord, center):
-                filtered.setdefault(key,[]).append(coord)
-            else:
-                count += 1
-                    
-    print ("Filtered %d points." %count)
-    print
-                
-    return filtered
-
-def within_button(touch, center):
-    if abs(a[0]-b[0])>43 or abs(a[0]-b[0])>73:
-        return False
-    return True
-'''
 
 postures = {"left_hand":["4", "8", "11"], "right_hand":["1", "7", "10"], 
             "index_finger":["3", "5", "12"], "two_hand":["2", "6", "9"]}
+
+
+def contains_spikes(values):
+    for value in values:
+        if value>40000:
+            return True
+    
+    return False
+
+def grid_search(X, y, lengthscales):
+    
+    scores = np.zeros(len(lengthscales))
+    for i in range(len(lengthscales)):
+        lengthscale = lengthscales[i]
+        kf = cross_validation.KFold(len(y), n_folds=3, shuffle=True)
+        score = []
+        for train_index, test_index in kf:
+
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+
+            y_train = y_train.reshape(y_train.size, 1)
+
+            kernel= GPy.kern.RBF(24, variance=1., lengthscale=lengthscale)  
+            m = GPy.models.GPClassification(X = X_train, Y = y_train, kernel=kernel)
+            prob = m.predict(X_test)
+            pred = map(lambda x: 1 if x[0]>0.5 else 0, prob[0])
+            score.append(metrics.accuracy_score(y_test, pred))
+            
+        scores[i] = np.mean(np.array(score))
+
+    return lengthscales[np.argmax(scores)] 
             
 def createlist(string):
     return map(float, string.replace('(', '').replace(')', '').split(','))
@@ -116,7 +92,7 @@ def get_key_centers():
 
 def process_twohand(userid, posture = 0):
     locations = []
-    bod = []
+    bods = []
     targets_x = []
     targets_y = []
     y = []
@@ -134,8 +110,11 @@ def process_twohand(userid, posture = 0):
                 letter = line[1]
                 location = list(ast.literal_eval(line[3]))
                 center = centers[letter]
+                bod = createlist(line[-1])
                 
                 if not iscorrect(location, center):
+                    continue                    
+                if contains_spikes(bod):
                     continue
                 
                 if line[0] == "left":
@@ -147,15 +126,15 @@ def process_twohand(userid, posture = 0):
                 targets_x.append(center[0]-location[0])
                 targets_y.append(center[1]-location[1])            
                 locations.append(location)
-                bod.append(createlist(line[-1]))
+                bods.append(bod)
                 
-    return locations, bod, targets_x, targets_y, y, touch_centers
+    return locations, bods, targets_x, targets_y, y, touch_centers
 
 
 def process_posture(userid, filenos, posture): 
     
     locations = []
-    bod = []
+    bods = []
     targets_x = []
     targets_y = []
     y = []
@@ -171,18 +150,21 @@ def process_posture(userid, filenos, posture):
                 letter = line[0]
                 location = list(ast.literal_eval(line[2]))
                 center = centers[letter]
+                bod = createlist(line[-1])
                 
                 if not iscorrect(location, center):
+                    continue                    
+                if contains_spikes(bod):
                     continue
                 
                 targets_x.append(center[0]-location[0])
                 targets_y.append(center[1]-location[1])                
                 touch_centers.append(center)
                 locations.append(location)
-                bod.append(createlist(line[-1]))
+                bod.append(bod)
                 y.append(posture)
                 
-    return locations, bod, targets_x, targets_y, y, touch_centers
+    return locations, bods, targets_x, targets_y, y, touch_centers
 
 
 
