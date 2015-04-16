@@ -161,7 +161,7 @@ def process_posture(userid, filenos, posture):
                 targets_y.append(center[1]-location[1])                
                 touch_centers.append(center)
                 locations.append(location)
-                bod.append(bod)
+                bods.append(bod)
                 y.append(posture)
                 
     return locations, bods, targets_x, targets_y, y, touch_centers
