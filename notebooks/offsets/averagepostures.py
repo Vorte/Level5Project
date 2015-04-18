@@ -69,7 +69,7 @@ def run(userId):
 
         gp = VBGP.VBGP()
         gp.fit(bod_scaled, y_train, theta=thetas[0], nos_its = 50, thresh = 0.1)
-        #gp.optimize(thetas, nos_its = 50, thresh = 0.1)
+        gp.optimize(thetas, nos_its = 50, thresh = 0.1)
 
         probabilities = gp.predict(test)    
 
