@@ -2,7 +2,6 @@ import ast, math
 
 def within_button(touch, center):
     if center == (810.5, 245.0): # SPACE key
-        print "hi"
         if abs(touch[0]-center[0])>73/2.0 or abs(touch[1]-center[1])>250/2.0:
             return False
         return True
@@ -11,8 +10,7 @@ def within_button(touch, center):
         return False
     return True
 
-'''
-def typed_string(touches):
+def typed_phys(touches):
     centers = get_key_centers()
     keys = centers.keys()
     typed_string = []
@@ -20,7 +18,6 @@ def typed_string(touches):
     for touch in touches:
         for key in keys:
             if within_button(touch, centers[key]):
-            #if within_distance(touch, centers[key], 3):
                 if key == 'SPACE':
                     typed_string.append(' ')
                 else:
@@ -28,15 +25,12 @@ def typed_string(touches):
                 break
         
     return ''.join(typed_string)
-'''
+    
 
-def typed_string(touches):
-    #centers = get_key_centers()
-    #keys = centers.keys()
+def typed_virt(touches):
     typed_strings = [[],[],[],[],[],[],[]]
     
     for touch in touches:
-        #for key in keys:
         for i in range(1, 8):
             key, loc = closest_key(touch)
             if within_distance(touch, loc, i):
@@ -44,7 +38,6 @@ def typed_string(touches):
                     typed_strings[i-1].append(' ')
                 else:
                     typed_strings[i-1].append(key)
-                #continue
      
     for i in range(len(typed_strings)):
         typed_strings[i] = ''.join(typed_strings[i])
@@ -53,7 +46,6 @@ def typed_string(touches):
 
 def closest_key(touch):
     centers = get_key_centers()
-    #center_locations = centers.values()
     keys = centers.keys()
     
     distances = {}
@@ -64,9 +56,6 @@ def closest_key(touch):
     
     key = min(distances, key=distances.get)
     return key, centers[key]
-        
-    #key_index = distances.index(min(distances))
-    #return center_locations[key_index]
 
 def get_key_centers():
     data = {}
@@ -79,6 +68,21 @@ def get_key_centers():
             data[item[0]] = (float(item[1]), float(item[2]))
             
     return data
+
+def iscorrect(a, b):
+    key_width = 43    
+    dist = math.sqrt( (a[0] - b[0])**2 + (a[1] - b[1])**2 )
+    
+    if dist > 2*key_width:
+        return False
+    return True
+
+def contains_spikes(values):
+    for value in values:
+        if value>40000:
+            return True
+    
+    return False
 
 def within_distance(point1, point2, distance):
     dot_pitch = 0.101195219 # 0.1011
@@ -112,7 +116,7 @@ def createlist(string):
 
 def process_twohand(userid, posture = 0):
     locations = []
-    bod = []
+    bods = []
     targets_x = []
     targets_y = []
     y = []
@@ -122,7 +126,7 @@ def process_twohand(userid, posture = 0):
     filenos = ["2", "6", "9"]
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"up.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
@@ -130,9 +134,12 @@ def process_twohand(userid, posture = 0):
                 letter = line[1]
                 location = list(ast.literal_eval(line[3]))
                 center = centers[letter]
+                bod = createlist(line[-1])
                 
-#                if not iscorrect(location, center):
-#                    continue
+                if not iscorrect(location, center):
+                    continue                    
+                if contains_spikes(bod):
+                    continue
                 
                 if line[0] == "left":
                     y.append(0+posture)
@@ -143,15 +150,15 @@ def process_twohand(userid, posture = 0):
                 targets_x.append(center[0]-location[0])
                 targets_y.append(center[1]-location[1])            
                 locations.append(location)
-                bod.append(createlist(line[-1]))
+                bods.append(bod)
                 
-    return locations, bod, targets_x, targets_y, y, touch_centers
+    return locations, bods, targets_x, targets_y, y, touch_centers
 
 
 def process_posture(userid, filenos, posture): 
     
     locations = []
-    bod = []
+    bods = []
     targets_x = []
     targets_y = []
     y = []
@@ -159,7 +166,7 @@ def process_posture(userid, filenos, posture):
     centers = get_key_centers()
     
     for fileno in filenos:
-        filename = "/home/dimitar/Desktop/Python/experiment/results/"+str(userid)+"_"+fileno+"up.txt"
+        filename = "../../data/"+str(userid)+"_"+fileno+"up.txt"
         with open(filename, "r") as f:
             lines = f.read().splitlines()
             lines = map(lambda x: x.split('\t'), lines[1:])
@@ -167,18 +174,21 @@ def process_posture(userid, filenos, posture):
                 letter = line[0]
                 location = list(ast.literal_eval(line[2]))
                 center = centers[letter]
+                bod = createlist(line[-1])
                 
-#                if not iscorrect(location, center):
-#                    continue
+                if not iscorrect(location, center):
+                    continue                    
+                if contains_spikes(bod):
+                    continue
                 
                 targets_x.append(center[0]-location[0])
                 targets_y.append(center[1]-location[1])                
                 touch_centers.append(center)
                 locations.append(location)
-                bod.append(createlist(line[-1]))
+                bods.append(bod)
                 y.append(posture)
                 
-    return locations, bod, targets_x, targets_y, y, touch_centers
+    return locations, bods, targets_x, targets_y, y, touch_centers
     
     
     
