@@ -75,10 +75,7 @@ def run(userId):
     for i in range(5):
         index = np.where(y==i)[0]
         regr_x.append(learn_offset(locations[index], targets_x[index]))
-        regr_y.append(learn_offset(locations[index], targets_y[index]))
-
-    regr_pool_x = learn_offset(locations, targets_x)
-    regr_pool_y = learn_offset(locations, targets_y)    
+        regr_y.append(learn_offset(locations[index], targets_y[index])) 
         
     with open("../../Loggingapp/dataset.txt") as f:
         pool = f.read().splitlines()
@@ -112,11 +109,7 @@ def run(userId):
             
             bods.append(bod)
             locations.append(ast.literal_eval(touch[column_index+2]))
-            #locations = np.array(map(lambda x: ast.literal_eval(x), touches[:,(column_index+2)]))
-            #bod = np.array(map(lambda x: dataIO.createlist(x), touches[:,(column_index+4)]))
             
-        #print req_string
-        #print
         bods = np.array(bods)
         locations=np.array(locations)
 
@@ -142,20 +135,13 @@ def run(userId):
                 
                 pred_x = np.zeros(len(vectors))
                 pred_y = np.zeros(len(vectors))
-                pool_x = np.zeros(len(vectors))
-                pool_y = np.zeros(len(vectors))
                 for i in range(len(vectors)):
                     #regr_no = pred[i]
                     for j in range(5):
                         pred_x[i] += pred[i][j]*regr_x[j].predict(vectors[i])
                         pred_y[i] += pred[i][j]*regr_y[j].predict(vectors[i])
-                    pool_x[i] = regr_pool_x.predict(vectors[i])
-                    pool_y[i] = regr_pool_y.predict(vectors[i])
 
-                #print pred_x.shape
-                #print pred_y.shape
                 new_points = typed_locations + np.dstack((pred_x, pred_y))[0]
-                typed_locations = typed_locations + np.dstack((pool_x, pool_y))[0]
                 
                 typed_phys.append(dataIO.typed_phys(typed_locations))
                 pred_phys.append(dataIO.typed_phys(new_points))
