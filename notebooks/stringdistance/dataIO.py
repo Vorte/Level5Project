@@ -60,7 +60,7 @@ def closest_key(touch):
 def get_key_centers():
     data = {}
     
-    filename = "/home/dimitar/Desktop/Python/Level5Project/Loggingapp/keylocations.txt"
+    filename = "../../Loggingapp/keylocations.txt"
     with open(filename, "r") as f:
         lines = f.read().splitlines()
         lines = map(lambda x: x.split(' '), lines)
